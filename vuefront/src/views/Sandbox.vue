@@ -1,6 +1,6 @@
 <template>
 	<div class="sandbox">
-		<TestComp testCompTitle="Sandbox" />
+		<TestComp testCompTitle="TestComp New Value" />
 		<!-- Vue is a 2 way live update system -->
 		<div class="live-update">
 			<h4>{{ liveupdate }}</h4>

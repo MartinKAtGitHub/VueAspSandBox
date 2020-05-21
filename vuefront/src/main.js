@@ -4,6 +4,10 @@ import router from './router';
 Vue.config.productionTip = false;
 new Vue({
     router,
+    data: {
+        randomData: "Foo",
+        moreData: "Bar",
+    },
     render: h => h(App)
 }).$mount('#app');
 //# sourceMappingURL=main.js.map

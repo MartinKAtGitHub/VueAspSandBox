@@ -4,6 +4,7 @@ import Home from '../views/Home.vue';
 // I get an error when the file name starts with a Capital letter for some reason
 // Fix restart the server ........
 import Sandbox from '../views/Sandbox.vue';
+import GitHubAPISearch from '../views/GitHubAPISearch.vue';
 Vue.use(VueRouter);
 const routes = [
     {
@@ -24,6 +25,11 @@ const routes = [
         name: 'Sandbox',
         component: Sandbox
         //component: () => import(/* webpackChunkName: "about" */ '../views/Sandbox.vue'),
+    },
+    {
+        path: '/githubsearch',
+        name: 'GitHubAPISearch',
+        component: GitHubAPISearch
     },
 ];
 const router = new VueRouter({
