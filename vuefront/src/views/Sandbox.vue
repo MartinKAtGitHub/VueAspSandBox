@@ -3,26 +3,45 @@
 		<TestComp testCompTitle="TestComp New Value" />
 		<!-- Vue is a 2 way live update system -->
 		<div class="live-update">
-			<h4>{{ liveupdate }}</h4>
+			<h4>{{ pageTitle }}</h4>
 		</div>
+		<button v-on:click="getWeatherData">Get Data</button>
 	</div>
 </template>
 
-<script>
+<script lang="ts">
 // @ is an alias to /src
+import axios from 'axios';
 import TestComp from '@/components/TestComp.vue';
-
-export default {
-	name: 'Sandbox',
-	data: function() {
-		return {
-			liveupdate: 'liveupdate',
-		};
-	},
+import {Component, Vue} from 'vue-property-decorator';
+@Component({
 	components: {
 		TestComp,
 	},
-};
+})
+export default class Sandbox extends Vue {
+	private readonly pageTitle = 'Sandbox page';
+
+	getWeatherData() {
+		console.log('Get weather data');
+		axios.get('http://localhost:19263/weatherforecast').then((res) => {
+			console.log(res.data);
+		});
+	}
+}
+
+// This is the JS way
+// export default {
+// 	name: 'Sandbox',
+// 	data: function() {
+// 		return {
+// 			pageTitle: 'liveupdate',
+// 		};
+// 	},
+// 	components: {
+// 		TestComp,
+// 	},
+// };
 </script>
 
 <style scoped>

@@ -25,7 +25,9 @@ namespace VueSandbox.Core
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSpaStaticFiles(op => op.RootPath = "wwwroot"); // when i publish, put the SPA in my wwwroot
             services.AddControllers();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -46,6 +48,16 @@ namespace VueSandbox.Core
             {
                 endpoints.MapControllers();
             });
+
+            // proxy setup | This will eat all bad request, so make sure Vue.js can handle bad request like 404. If not you might just get index.html and 0 feedback
+            app.UseSpaStaticFiles();
+            app.UseSpa(builder => {
+                if (env.IsDevelopment())
+                {
+                    builder.UseProxyToSpaDevelopmentServer("http://localhost:8081/");
+                }
+            });
+
         }
     }
 }

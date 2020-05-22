@@ -20,10 +20,6 @@ export default class GitHubSearchItem extends Vue {
 	@Prop() username!: string;
 	@Prop() userAvatarUrl!: string;
 	@Prop() profileUrl!: string;
-
-	// private _username: string = '';
-	// private _userAvatarUrl: string = '';
-	// private _profileUrl: string = '';
 }
 </script>
 
@@ -32,22 +28,21 @@ export default class GitHubSearchItem extends Vue {
 	margin: 15px;
 }
 .card {
-	/* Add shadows to create the "card" effect */
+	background-color: #c5ece9;
 	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
 	transition: 0.3s;
 	width: 200px;
 	height: 300px;
+	padding: 10px;
 }
 .card > img {
-	width: 100%;
+	width: 90%;
 }
 
-/* On mouse-over, add a deeper shadow */
 .card:hover {
 	box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
 }
 
-/* Add some padding inside the card container */
 .container {
 	padding: 2px 16px;
 }
