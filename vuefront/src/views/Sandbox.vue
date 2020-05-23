@@ -24,7 +24,7 @@ export default class Sandbox extends Vue {
 
 	getWeatherData() {
 		console.log('Get weather data');
-		axios.get('http://localhost:19263/weatherforecast').then((res) => {
+		axios.get('/api/weatherforecast').then((res) => {
 			console.log(res.data);
 		});
 	}

@@ -6,10 +6,12 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using VueSandbox.Core.Models;
 
 namespace VueSandbox.Core
 {
@@ -25,7 +27,12 @@ namespace VueSandbox.Core
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSpaStaticFiles(op => op.RootPath = "wwwroot"); // when i publish, put the SPA in my wwwroot
+            services.AddDbContext<TodoDbContext>(opt =>
+            {
+                opt.UseSqlite(Configuration.GetConnectionString("TodoDbConnection"));
+            });
+
+            services.AddSpaStaticFiles(opt => opt.RootPath = "wwwroot");
             services.AddControllers();
 
         }
