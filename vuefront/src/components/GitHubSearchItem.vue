@@ -17,6 +17,7 @@ import {Prop, Vue, Component} from 'vue-property-decorator';
 
 @Component
 export default class GitHubSearchItem extends Vue {
+	@Prop() id!: number;
 	@Prop() username!: string;
 	@Prop() userAvatarUrl!: string;
 	@Prop() profileUrl!: string;
