@@ -1,29 +1,37 @@
-<!--This would be more of a view, but i will embed this in the sandbox view for now-->
 <template>
 	<div class="todo-list">
-		<div id="addTodoContainer">
-			<p>Add new Todo</p>
-			<form @submit="addTodoItem">
-				<input
-					type="text"
-					v-model="newTodoItemName"
-					name="newTodoItemName"
+		<section class="todo-item-container" v-if="isTodoListDataLoaded">
+			<!-- <div id="addTodoContainer">
+				<p>Add new Todo</p>
+				<form @submit="addTodoItem">
+					<input
+						type="text"
+						v-model="newTodoItemName"
+						name="newTodoItemName"
+					/>
+					<input
+						type="text"
+						v-model="newTodoItemDesc"
+						name="newTodoItemDesc"
+					/>
+					<input type="submit" />
+				</form>
+			</div> -->
+
+			<div v-if="isLoading">
+				Loading data <fa-icon icon="spinner" spin />
+			</div>
+			<div v-else v-bind:key="item.id" v-for="item in todoItems">
+				<TodoItem
+					:todo-item-data="item"
+					v-on:delete-item-event="deleteTodoItem"
+					v-on:edit-item-event="editTodoItem"
 				/>
-				<input
-					type="text"
-					v-model="newTodoItemDesc"
-					name="newTodoItemDesc"
-				/>
-				<input type="submit" />
-			</form>
-		</div>
-		<div v-bind:key="item.id" v-for="item in todoItems">
-			<TodoItem
-				:todo-item-data="item"
-				v-on:delete-item-event="deleteTodoItem"
-				v-on:edit-item-event="editTodoItem"
-			/>
-		</div>
+			</div>
+		</section>
+		<section v-else>
+			<h3>An error has occurred, please try again later</h3>
+		</section>
 	</div>
 </template>
 
@@ -41,15 +49,49 @@ import {Component, Vue} from 'vue-property-decorator';
 })
 export default class TodoList extends Vue {
 	private readonly pageTitle = 'Todo list';
-	private newTodoItemName: string = '';
-	private newTodoItemDesc: string = '';
-	private newTodoItemIsComplete: boolean = false;
+	private newTodoItemName = '';
+	private newTodoItemDesc = '';
+	private newTodoItemIsComplete = false;
+
+	private isTodoListDataLoaded = true;
+	private isLoading = true;
 
 	todoItems: TodoItemData[] = [];
 
 	// lifecycle hook, fires of depending on the stage of vue
-	created() {
+	mounted() {
 		this.getListItems();
+		// this.devMode();
+	}
+
+	private devMode() {
+		const elementA = {
+			id: '99',
+			name: 'DEV TODO',
+			desc: 'For dev testing',
+			isComplete: false,
+		};
+
+		const elementB = {
+			id: '98',
+			name: 'DEV TODO',
+			desc: 'For dev testing',
+			isComplete: false,
+		};
+
+		const elementC = {
+			id: '97',
+			name: 'DEV TODO',
+			desc: 'For dev testing',
+			isComplete: false,
+		};
+
+		this.todoItems.push(new TodoItemData(elementA));
+		this.todoItems.push(new TodoItemData(elementB));
+		this.todoItems.push(new TodoItemData(elementC));
+
+		this.isLoading = false;
+		console.warn('DEV DATA ENABLED! NOT FETCHING DATA FROM API');
 	}
 
 	//get
@@ -62,7 +104,13 @@ export default class TodoList extends Vue {
 					this.todoItems.push(new TodoItemData(element));
 				}
 			})
-			.catch((error) => console.log(error.response.data));
+			.catch((error) => {
+				console.log(error);
+				this.isTodoListDataLoaded = false;
+			})
+			.finally(() => {
+				this.isLoading = false;
+			});
 	}
 
 	// post
@@ -110,11 +158,19 @@ export default class TodoList extends Vue {
 
 <style scoped>
 #addTodoContainer {
-	margin-bottom: 50px;
+	background-color: crimson;
+	margin: 0 0 1em;
+	padding: 1em;
+}
+#addTodoContainer p {
+	margin: 0 0 1em;
+}
+.todo-list {
+	padding: 0.5em;
 }
 
-.todo-list {
-	min-height: 100px;
-	background-color: chartreuse;
+.todo-item-container {
+	background-color: #68d282;
+	border-radius: 10px;
 }
 </style>

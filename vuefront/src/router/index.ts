@@ -6,6 +6,7 @@ import Home from '../views/Home.vue'
 // Fix restart the server ........
 import Sandbox from '../views/Sandbox.vue'
 import GitHubAPISearch from '../views/GitHubAPISearch.vue'
+import TodoApp from '../views/TodoApp.vue'
 
 Vue.use(VueRouter)
 
@@ -34,6 +35,11 @@ const routes: Array<RouteConfig> = [
         path: '/githubsearch',
         name: 'GitHubAPISearch',
         component: GitHubAPISearch
+    },
+    {
+        path: '/todoApp',
+        name: 'TodoApp',
+        component: TodoApp
     },
 ]
 

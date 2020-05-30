@@ -1,11 +1,12 @@
 <template>
 	<div class="sandbox">
-		<TestComp test-comp-title="TestComp New Value" />
+		<!-- <TestComp test-comp-title="TestComp New Value" /> -->
 		<!-- Vue is a 2 way live update system -->
+
 		<div class="live-update">
-			<h4>{{ pageTitle }}</h4>
+			<h2>{{ pageTitle }}</h2>
 		</div>
-		<button v-on:click="getWeatherData">Get Data</button>
+		<!-- <button v-on:click="getWeatherData">Get Data</button> -->
 
 		<TodoList />
 	</div>
