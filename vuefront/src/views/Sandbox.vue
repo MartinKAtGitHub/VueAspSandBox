@@ -8,7 +8,7 @@
 		</div>
 		<!-- <button v-on:click="getWeatherData">Get Data</button> -->
 
-		<TodoList />
+		<!-- <TodoList /> -->
 	</div>
 </template>
 

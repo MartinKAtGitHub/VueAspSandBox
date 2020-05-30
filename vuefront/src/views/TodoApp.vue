@@ -40,7 +40,7 @@ import {Component, Vue} from 'vue-property-decorator';
 		TodoList,
 	},
 })
-export default class Sandbox extends Vue {
+export default class TodoApp extends Vue {
 	private readonly pageTitle = 'Todo App';
 }
 </script>

@@ -172,5 +172,6 @@ export default class TodoList extends Vue {
 .todo-item-container {
 	background-color: #68d282;
 	border-radius: 10px;
+	padding-bottom: 1.5em;
 }
 </style>
