@@ -7,6 +7,16 @@ export class TodoItemData {
         this.itemName = data.name;
         this.itemDesc = data.desc;
         this.isComplete = data.isComplete;
+        this.defaultId = data.id;
+        this.defaultName = data.name;
+        this.defaultDesc = data.desc;
+        this.defaultIsComplete = data.isComplete;
+    }
+    resetDefault() {
+        this.id = this.defaultId;
+        this.itemName = this.defaultName;
+        this.itemDesc = this.defaultName;
+        this.isComplete = this.defaultIsComplete;
     }
 }
 //# sourceMappingURL=TodoItemData.js.map

@@ -14,9 +14,13 @@
 		</form> -->
 
 		<!--Submit on value change-->
-		<form class="todo-item-checkbox-form" @submit="editTodoItem">
+		<form class="todo-item-checkbox-form">
 			<label class="checkbox-container">
-				<input type="checkbox" v-model="todoItemData.isComplete" />
+				<input
+					v-bind:id="`todoItemCheckbox_${todoItemData.id}`"
+					type="checkbox"
+					v-model="todoItemData.isComplete"
+				/>
 				<fa-icon class="checkbox-icon checked" icon="check-circle" />
 				<fa-icon
 					class="checkbox-icon unchecked"
@@ -24,7 +28,9 @@
 				/>
 			</label>
 		</form>
+
 		<h3 class="todo-item-name">{{ todoItemData.itemName }}</h3>
+
 		<button class="todo-item-del-btn" @click="deleteItemSignal">
 			<fa-icon class="icon-del" icon="trash" />
 		</button>
@@ -38,11 +44,25 @@ import {TodoItemData} from '../Models/TodoItemData';
 export default class TodoItem extends Vue {
 	@Prop(TodoItemData) todoItemData!: TodoItemData;
 
-	public deleteItemSignal() {
-		this.$emit('delete-item-event', this.todoItemData);
+	mounted() {
+		this.onCompletedUpdate();
 	}
-	public editTodoItem(e: Event) {
-		e.preventDefault();
+
+	private onCompletedUpdate() {
+		const checkbox = document.getElementById(
+			`todoItemCheckbox_${this.todoItemData.id}`
+		) as HTMLInputElement;
+
+		checkbox.onchange = () => {
+			this.editTodoItem();
+		};
+	}
+
+	public deleteItemSignal(e: Event) {
+		var btn = e.target as HTMLButtonElement;
+		this.$emit('delete-item-event', this.todoItemData, btn);
+	}
+	public editTodoItem() {
 		this.$emit('edit-item-event', this.todoItemData);
 	}
 }
@@ -78,17 +98,34 @@ export default class TodoItem extends Vue {
 	background-color: #ef1111;
 	border: none;
 	border-radius: 50%;
+	cursor: pointer;
+}
+
+.todo-item-del-btn:hover {
+	background-color: #7a1212;
+}
+
+.todo-item-del-btn:disabled {
+	border: 1px solid #999999;
+	background-color: #cccccc;
+	color: #666666;
 }
 
 .checkbox-icon {
 	width: 2em;
 	height: 2em;
 	color: #0066ff;
+	pointer-events: none;
 }
 .icon-del {
 	width: 2em;
 	height: 2em;
 	color: #ffffff;
+	pointer-events: none;
+}
+
+.checkbox-container {
+	display: block;
 }
 
 .checkbox-container input,

@@ -10,7 +10,7 @@
 				<ul class="fa-ul">
 					<li>
 						<span class="fa-li"><fa-icon icon="list-ul"/></span>
-						Small name text
+						Another todo List (WIP)
 					</li>
 					<li>
 						<span class="fa-li"><fa-icon icon="list-ul"/></span>
@@ -21,10 +21,10 @@
 			</div>
 		</section>
 		<section class="todo-app-main">
-			<div class="todo-app-main-top">
+			<!-- <div class="todo-app-main-top">
 				<h1>List name</h1>
 				<h3><fa-icon icon="plus-circle" /> add item</h3>
-			</div>
+			</div> -->
 
 			<TodoList />
 		</section>
@@ -48,7 +48,7 @@ export default class TodoApp extends Vue {
 <style scoped>
 .todo-app {
 	display: grid;
-	grid-template-columns: 15% auto;
+	grid-template-columns: 15em auto;
 	background-color: #ceffeb; /*#7ee289*/
 	border: 2px solid #7ee289;
 	border-radius: 10px;
@@ -63,6 +63,18 @@ export default class TodoApp extends Vue {
 	padding: 1.5em 0 2em;
 	border-bottom: 2px solid #5ebe76;
 }
+
+.sidebar-bot {
+	padding-right: 1em;
+}
+
+.sidebar-bot ul {
+	text-align: left;
+}
+.sidebar-bot li {
+	margin-bottom: 0.5em;
+}
+
 .add-todo-list-btn {
 	font-size: 2rem;
 	color: white;
@@ -77,18 +89,5 @@ export default class TodoApp extends Vue {
 
 .add-todo-list-btn:active {
 	background-color: #3fa236;
-}
-
-.sidebar-bot ul {
-	text-align: left;
-}
-.sidebar-bot li {
-	margin-bottom: 0.5em;
-}
-
-.todo-app-main-top {
-	display: flex;
-	justify-content: space-between;
-	padding: 0 2.5em;
 }
 </style>
