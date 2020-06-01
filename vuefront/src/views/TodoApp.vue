@@ -21,11 +21,6 @@
 			</div>
 		</section>
 		<section class="todo-app-main">
-			<!-- <div class="todo-app-main-top">
-				<h1>List name</h1>
-				<h3><fa-icon icon="plus-circle" /> add item</h3>
-			</div> -->
-
 			<TodoList />
 		</section>
 	</div>

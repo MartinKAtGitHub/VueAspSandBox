@@ -30,4 +30,10 @@ export class TodoItemData {
         this.itemDesc = this.defaultName
         this.isComplete = this.defaultIsComplete;
     }
+    public setNewDefaultValues(itemName: string, itemDesc: string, isComplete: boolean) {
+
+        this.defaultName = itemName;
+        this.defaultDesc = itemDesc;
+        this.defaultIsComplete = isComplete;
+    }
 }

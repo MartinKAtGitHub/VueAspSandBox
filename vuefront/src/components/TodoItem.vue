@@ -1,35 +1,39 @@
 <template>
 	<div class="todo-item">
-		<!-- <form @submit="editTodoItem">
-			<div class="item-isComplete-container">
-				<input type="checkbox" v-model="todoItemData.isComplete" />
-			</div>
-			<div class="item-name-container">
-				<input type="text" v-model="todoItemData.itemName" />
-			</div>
-			<div class="item-desc-container">
-				<input type="text" v-model="todoItemData.itemDesc" />
-			</div>
-			<input type="submit" />
-		</form> -->
+		<label class="checkbox-container">
+			<input
+				v-bind:id="`todoItemCheckbox_${todoItemData.id}`"
+				type="checkbox"
+				v-model="todoItemData.isComplete"
+			/>
+			<fa-icon class="checkbox-icon checked" icon="check-circle" />
+			<fa-icon
+				class="checkbox-icon unchecked"
+				:icon="['fas', 'circle']"
+			/>
+		</label>
 
-		<!--Submit on value change-->
-		<form class="todo-item-checkbox-form">
-			<label class="checkbox-container">
-				<input
-					v-bind:id="`todoItemCheckbox_${todoItemData.id}`"
-					type="checkbox"
-					v-model="todoItemData.isComplete"
-				/>
-				<fa-icon class="checkbox-icon checked" icon="check-circle" />
-				<fa-icon
-					class="checkbox-icon unchecked"
-					:icon="['fas', 'circle']"
-				/>
-			</label>
+		<!-- <h3 class="todo-item-name">{{ todoItemData.itemName }}</h3> -->
+		<form
+			v-bind:id="`todoItemNameForm_${todoItemData.id}`"
+			@submit="editTodoItem"
+			class="todo-item-name"
+		>
+			<input
+				v-bind:id="`todoItemNameInput_${todoItemData.id}`"
+				v-bind:class="{'todo-completed': todoItemData.isComplete}"
+				class="todo-item-name-input"
+				type="text"
+				v-model="todoItemData.itemName"
+			/>
+
+			<!--Do i need this func with a todo list-->
+			<!-- <textarea
+				class="todo-item-name-input"
+				v-model="todoItemData.itemName"
+			>
+			</textarea> -->
 		</form>
-
-		<h3 class="todo-item-name">{{ todoItemData.itemName }}</h3>
 
 		<button class="todo-item-del-btn" @click="deleteItemSignal">
 			<fa-icon class="icon-del" icon="trash" />
@@ -46,6 +50,7 @@ export default class TodoItem extends Vue {
 
 	mounted() {
 		this.onCompletedUpdate();
+		this.resetInputOnBlur(this.todoItemData.itemName);
 	}
 
 	private onCompletedUpdate() {
@@ -57,12 +62,22 @@ export default class TodoItem extends Vue {
 			this.editTodoItem();
 		};
 	}
+	private resetInputOnBlur(currentName: string) {
+		const input = document.getElementById(
+			`todoItemNameInput_${this.todoItemData.id}`
+		) as HTMLInputElement;
+
+		input.onblur = () => {
+			input.value = currentName;
+		};
+	}
 
 	public deleteItemSignal(e: Event) {
 		var btn = e.target as HTMLButtonElement;
 		this.$emit('delete-item-event', this.todoItemData, btn);
 	}
 	public editTodoItem() {
+		this.resetInputOnBlur(this.todoItemData.itemName);
 		this.$emit('edit-item-event', this.todoItemData);
 	}
 }
@@ -79,10 +94,27 @@ export default class TodoItem extends Vue {
 }
 
 .todo-item-name {
+	flex: 1;
 	margin-left: 2em;
 	margin-right: 2em;
-	/* max-width: 80%; */
 	min-width: 0;
+}
+
+.todo-item-name-input {
+	outline: none;
+	display: block;
+	padding: 1em 1em 0.5em 1em;
+	background: none;
+	border: 1px solid transparent;
+	width: 100%;
+	box-sizing: border-box;
+	font-size: 1.17em;
+	margin: 1em 0 1em 0;
+	text-overflow: ellipsis;
+}
+
+.todo-item-name-input:focus {
+	border-bottom: 2px solid #249090;
 }
 
 .item-name-container {
@@ -111,6 +143,10 @@ export default class TodoItem extends Vue {
 	color: #666666;
 }
 
+.todo-completed {
+	text-decoration: line-through;
+}
+
 .checkbox-icon {
 	width: 2em;
 	height: 2em;
@@ -126,6 +162,7 @@ export default class TodoItem extends Vue {
 
 .checkbox-container {
 	display: block;
+	cursor: pointer;
 }
 
 .checkbox-container input,

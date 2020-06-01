@@ -9,42 +9,60 @@
 
 		<section class="todo-items-container" v-if="isTodoListDataLoaded">
 			<div id="addTodoModal" class="add-todo-modal">
-				<div class="todo-modal-content">
+				<div class="add-todo-modal-content">
 					<span id="closeTodoModal" class="close-todo-modal"
 						>&times;</span
 					>
-					<div id="addTodoContainer">
-						<p>Add new Todo</p>
-						<form @submit="addTodoItem">
-							<input
-								type="text"
-								v-model="newTodoItemName"
-								name="newTodoItemName"
+					<!-- <div id="addTodoContainer" class=""> -->
+
+					<form @submit="addTodoItem">
+						<input
+							type="text"
+							v-model="newTodoItemName"
+							name="newTodoItemName"
+							placeholder="Todo Name"
+						/>
+						<input
+							type="text"
+							v-model="newTodoItemDesc"
+							name="newTodoItemDesc"
+							placeholder="Todo Description"
+						/>
+						<!-- <input type="submit" /> -->
+						<button
+							id="addTodoSubmitBtn"
+							class="add-todo-submit-btn"
+							type="submit"
+						>
+							Add Todo
+							<fa-icon
+								id="addTodoSpinner"
+								class="add-todo-spinner"
+								icon="spinner"
+								spin
 							/>
-							<input
-								type="text"
-								v-model="newTodoItemDesc"
-								name="newTodoItemDesc"
-							/>
-							<!-- <input type="submit" /> -->
-							<button id="addTodoSubmitBtn" type="submit">
-								Submit
-							</button>
-						</form>
-					</div>
+						</button>
+					</form>
+					<!-- </div> -->
 				</div>
 			</div>
 
 			<div v-if="isLoading">
 				Loading data <fa-icon icon="spinner" spin />
 			</div>
-			<div v-else v-bind:key="item.id" v-for="item in todoItems">
+			<div
+				v-else-if="todoItems.length > 0"
+				v-bind:key="item.id"
+				v-for="item in todoItems"
+			>
 				<TodoItem
 					:todo-item-data="item"
 					v-on:delete-item-event="deleteTodoItem"
 					v-on:edit-item-event="editTodoItem"
 				/>
 			</div>
+
+			<div v-else><h3>No todos in this list</h3></div>
 		</section>
 		<section v-else>
 			<h3>An error has occurred, please try again later</h3>
@@ -77,7 +95,7 @@ export default class TodoList extends Vue {
 
 	private addTodoSubmitBtn!: HTMLButtonElement;
 	private addTodoModal!: HTMLDivElement;
-
+	private addTodoSpinner!: HTMLElement;
 	// lifecycle hook, fires of depending on the stage of vue
 	created() {
 		this.getListItems();
@@ -118,24 +136,29 @@ export default class TodoList extends Vue {
 	}
 
 	private addTodoModalSetup() {
+		this.addTodoSpinner = document.getElementById(
+			'addTodoSpinner'
+		) as HTMLElement;
+
 		this.addTodoModal = document.getElementById(
 			'addTodoModal'
 		) as HTMLDivElement;
-
-		const btn = document.getElementById('addTodoBtn') as HTMLButtonElement;
-		const span = document.getElementById(
-			'closeTodoModal'
-		) as HTMLSpanElement;
-
 		this.addTodoSubmitBtn = document.getElementById(
 			'addTodoSubmitBtn'
 		) as HTMLButtonElement;
 
-		btn.onclick = () => {
+		const addTodoBtn = document.getElementById(
+			'addTodoBtn'
+		) as HTMLButtonElement;
+		const closeTodoModal = document.getElementById(
+			'closeTodoModal'
+		) as HTMLSpanElement;
+
+		addTodoBtn.onclick = () => {
 			this.addTodoModal.style.display = 'block';
 		};
 
-		span.onclick = () => {
+		closeTodoModal.onclick = () => {
 			this.addTodoModal.style.display = 'none';
 		};
 
@@ -177,6 +200,7 @@ export default class TodoList extends Vue {
 			.post(`/api/TodoItems/`, dataObj)
 			.then((res) => {
 				this.addTodoSubmitBtn.disabled = true;
+				this.addTodoSpinner.style.display = 'inline-block';
 				this.todoItems.push(new TodoItemData(res.data));
 
 				//small delay, might remove it
@@ -185,6 +209,7 @@ export default class TodoList extends Vue {
 			.catch((error) => console.log(error.response.data))
 			.finally(() => {
 				this.addTodoSubmitBtn.disabled = false;
+				this.addTodoSpinner.style.display = 'none';
 				this.addTodoModal.style.display = 'none';
 				this.newTodoItemName = '';
 				this.newTodoItemDesc = '';
@@ -206,45 +231,47 @@ export default class TodoList extends Vue {
 
 	//put
 	private editTodoItem(item: TodoItemData) {
-		console.log('Edit');
 		const dataObj = {
 			id: item.id,
 			name: item.itemName,
 			desc: item.itemDesc,
 			isComplete: item.isComplete,
 		};
-		axios.put(`/api/TodoItems/${item.id}`, dataObj).catch((error) => {
-			console.log(error.response.data);
-			//location.reload(); // Don't think this is the best idea
-			item.resetDefault(); // hmm
-		});
+		axios
+			.put(`/api/TodoItems/${item.id}`, dataObj)
+			.then(() => {
+				item.setNewDefaultValues(
+					dataObj.name,
+					dataObj.desc,
+					dataObj.isComplete
+				);
+			})
+			.catch((error) => {
+				console.log(error.response.data);
+				//location.reload(); // Don't think this is the best idea
+				item.resetDefault(); // hmm
+			});
 	}
 }
 </script>
 
 <style scoped>
-#addTodoContainer {
-	background-color: crimson;
-	margin: 0 0 1em;
-	padding: 1em;
-}
-#addTodoContainer p {
-	margin: 0 0 1em;
-}
 .todo-list {
-	padding: 0.5em;
+	padding: 1em;
 }
 
 .todo-items-container {
 	background-color: #68d282;
 	border-radius: 10px;
-	padding-bottom: 1.5em;
+	padding-top: 2em;
+	padding-bottom: 2em;
+	min-height: 100px;
 }
 
 .todo-list-main-top {
 	display: flex;
 	justify-content: space-between;
-	padding: 1em 2.5em;
+	padding: 1em;
 }
 
 .add-todo-item-btn {
@@ -255,6 +282,35 @@ export default class TodoList extends Vue {
 	font-size: 1rem;
 	cursor: pointer;
 	border-radius: 15px;
+}
+
+.add-todo-modal input {
+	display: block;
+	padding: 1em 0.5em;
+	margin: auto;
+	width: 100%;
+	margin-bottom: 4em;
+	background: none;
+	border: none;
+	border-bottom: 2px solid #249090;
+	cursor: pointer;
+	font-size: 1.2rem;
+}
+
+.add-todo-submit-btn {
+	display: block;
+	padding: 1em 2em;
+	background-color: #26925e;
+	border: none;
+	color: white;
+	cursor: pointer;
+}
+.add-todo-submit-btn:hover {
+	background-color: #1c7c4e;
+}
+
+.add-todo-spinner {
+	display: none;
 }
 
 .add-todo-modal {
@@ -268,19 +324,21 @@ export default class TodoList extends Vue {
 	overflow: auto;
 	background-color: rgba(0, 0, 0, 0.4);
 }
-.todo-modal-content {
-	background-color: #fefefe;
+.add-todo-modal-content {
+	background-color: #d6ffd9;
 	margin: 15% auto;
-	padding: 20px;
+	padding: 5em;
 	border: 1px solid #888;
 	width: 80%;
+	box-sizing: border-box;
 }
 
 .close-todo-modal {
 	color: #aaa;
 	float: right;
-	font-size: 28px;
+	font-size: 2em;
 	font-weight: bold;
+	margin-bottom: 1em;
 }
 .close-todo-modal:hover,
 .close-todo-modal:focus {
