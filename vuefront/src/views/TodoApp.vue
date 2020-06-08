@@ -27,8 +27,10 @@
 </template>
 
 <script lang="ts">
+import axios from 'axios';
 import TodoList from '@/components/TodoList.vue';
 import {Component, Vue} from 'vue-property-decorator';
+import {TodoListData} from '@/Models/TodoListData';
 
 @Component({
 	components: {
@@ -37,6 +39,31 @@ import {Component, Vue} from 'vue-property-decorator';
 })
 export default class TodoApp extends Vue {
 	private readonly pageTitle = 'Todo App';
+	todoLists: TodoListData[] = [];
+
+	created() {
+		this.getTodoLists();
+		// this.devMode();
+		console.log(this.todoLists);
+	}
+
+	private getTodoLists() {
+		axios
+			.get('/api/TodoLists')
+			.then((result) => {
+				for (let i = 0; i < result.data.length; i++) {
+					const element = result.data[i];
+					this.todoLists.push(new TodoListData(element));
+				}
+			})
+			.catch((error) => {
+				console.log(error);
+				//this.isTodoListDataLoaded = false;
+			})
+			.finally(() => {
+				//this.isLoading = false;
+			});
+	}
 }
 </script>
 

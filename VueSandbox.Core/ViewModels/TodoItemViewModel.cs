@@ -11,5 +11,7 @@ namespace VueSandbox.Core.ViewModels
         public string Name { get; set; }
         public string Desc { get; set; }
         public bool IsComplete { get; set; }
+
+        public int TodoListId { get; set; }
     }
 }

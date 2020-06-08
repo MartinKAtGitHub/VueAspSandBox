@@ -29,7 +29,8 @@ namespace VueSandbox.Core
         {
             services.AddDbContext<TodoDbContext>(opt =>
             {
-                opt.UseSqlite(Configuration.GetConnectionString("TodoDbConnection"));
+                //opt.UseSqlite(Configuration.GetConnectionString("TodoDbConnection"));
+                opt.UseSqlServer(Configuration.GetConnectionString("TodoAppSQLConnection"));
             });
 
             services.AddSpaStaticFiles(opt => opt.RootPath = "wwwroot");

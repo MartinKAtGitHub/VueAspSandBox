@@ -79,7 +79,8 @@ namespace VueSandbox.Core.Controllers
             var todoItem = new TodoItem { 
                 Name = model.Name,
                 Desc = model.Desc,
-                IsComplete = model.IsComplete
+                IsComplete = model.IsComplete,
+                TodoListId = model.TodoListId
             };
                 
             
