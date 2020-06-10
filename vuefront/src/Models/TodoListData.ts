@@ -5,19 +5,13 @@ export class TodoListData {
     listName: string;
     todoItems: TodoItemData[] = [];
 
-    /**
-     *
-     */
     constructor(todoListViewModel: any) {
         this.id = todoListViewModel.id;
         this.listName = todoListViewModel.name;
 
-        todoListViewModel.todoItems.forEach((element: any) => {
+
+        todoListViewModel.todoItems?.forEach((element: any) => {
             this.todoItems.push(new TodoItemData(element));
         });
-
-        // todoListViewModel.todoItems.array.forEach((element: any) => {
-        //     this.todoItems.push(new TodoItemData(element));
-        // });
     }
 }

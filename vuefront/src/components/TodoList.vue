@@ -47,22 +47,25 @@
 				</div>
 			</div>
 
-			<div v-if="isLoading">
+			<!-- <div v-if="isLoading">
 				Loading data <fa-icon icon="spinner" spin />
-			</div>
-			<div
-				v-else-if="todoItems.length > 0"
-				v-bind:key="item.id"
-				v-for="item in todoItems"
-			>
-				<TodoItem
-					:todo-item-data="item"
-					v-on:delete-item-event="deleteTodoItem"
-					v-on:edit-item-event="editTodoItem"
-				/>
-			</div>
+			</div> -->
 
-			<div v-else><h3>No todos in this list</h3></div>
+			<div v-if="todoItems !== null">
+				<div v-if="todoItems.length > 0">
+					<div v-bind:key="item.id" v-for="item in todoItems">
+						<TodoItem
+							:todo-item-data="item"
+							v-on:delete-item-event="deleteTodoItem"
+							v-on:edit-item-event="editTodoItem"
+						/>
+					</div>
+				</div>
+				<div v-else><h3>List is empty</h3></div>
+			</div>
+			<div v-else>
+				<h3>Select a list to get started</h3>
+			</div>
 		</section>
 		<section v-else>
 			<h3>An error has occurred, please try again later</h3>
@@ -75,7 +78,7 @@ import TodoItem from '@/components/TodoItem.vue';
 
 import {TodoItemData} from '@/Models/TodoItemData';
 import axios from 'axios';
-import {Component, Vue} from 'vue-property-decorator';
+import {Component, Vue, Prop} from 'vue-property-decorator';
 
 @Component({
 	components: {
@@ -91,48 +94,21 @@ export default class TodoList extends Vue {
 	private isTodoListDataLoaded = true;
 	private isLoading = true;
 
-	todoItems: TodoItemData[] = [];
-
 	private addTodoSubmitBtn!: HTMLButtonElement;
 	private addTodoModal!: HTMLDivElement;
 	private addTodoSpinner!: HTMLElement;
+
+	@Prop() todoItems!: TodoItemData[];
+	public get getTodoItems(): TodoItemData[] {
+		return this.todoItems;
+	}
+
 	// lifecycle hook, fires of depending on the stage of vue
 	created() {
-		this.getListItems();
-		// this.devMode();
+		//this.getListItems();
 	}
 	mounted() {
 		this.addTodoModalSetup();
-	}
-
-	private devMode() {
-		const elementA = {
-			id: '99',
-			name: 'DEV TODO',
-			desc: 'For dev testing',
-			isComplete: false,
-		};
-
-		const elementB = {
-			id: '98',
-			name: 'DEV TODO',
-			desc: 'For dev testing',
-			isComplete: false,
-		};
-
-		const elementC = {
-			id: '97',
-			name: 'DEV TODO',
-			desc: 'For dev testing',
-			isComplete: false,
-		};
-
-		this.todoItems.push(new TodoItemData(elementA));
-		this.todoItems.push(new TodoItemData(elementB));
-		this.todoItems.push(new TodoItemData(elementC));
-
-		this.isLoading = false;
-		console.warn('DEV DATA ENABLED! NOT FETCHING DATA FROM API');
 	}
 
 	private addTodoModalSetup() {
@@ -170,23 +146,23 @@ export default class TodoList extends Vue {
 	}
 
 	//get
-	private getListItems() {
-		axios
-			.get('/api/TodoItems')
-			.then((result) => {
-				for (let i = 0; i < result.data.length; i++) {
-					const element = result.data[i];
-					this.todoItems.push(new TodoItemData(element));
-				}
-			})
-			.catch((error) => {
-				console.log(error);
-				this.isTodoListDataLoaded = false;
-			})
-			.finally(() => {
-				this.isLoading = false;
-			});
-	}
+	// private getListItems() {
+	// 	axios
+	// 		.get('/api/TodoItems')
+	// 		.then((result) => {
+	// 			for (let i = 0; i < result.data.length; i++) {
+	// 				const element = result.data[i];
+	// 				this.todoItems.push(new TodoItemData(element));
+	// 			}
+	// 		})
+	// 		.catch((error) => {
+	// 			console.log(error);
+	// 			this.isTodoListDataLoaded = false;
+	// 		})
+	// 		.finally(() => {
+	// 			this.isLoading = false;
+	// 		});
+	// }
 
 	// post
 	private addTodoItem(e: Event) {
