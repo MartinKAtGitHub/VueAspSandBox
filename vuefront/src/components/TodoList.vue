@@ -68,7 +68,9 @@
 			</div>
 		</section>
 		<section v-else>
-			<h3>An error has occurred, please try again later</h3>
+			<h3>
+				An error has occurred, please try to refresh or try again later
+			</h3>
 		</section>
 	</div>
 </template>

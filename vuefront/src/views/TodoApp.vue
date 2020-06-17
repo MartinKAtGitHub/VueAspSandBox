@@ -42,7 +42,7 @@
 				</button>
 			</div>
 			<div class="sidebar-bot">
-				<ul class="fa-ul">
+				<ul class="fa-ul" v-if="isTodoListsLoaded">
 					<li
 						:key="list.id"
 						v-for="list in todoLists"
@@ -52,6 +52,9 @@
 						{{ list.listName }}
 					</li>
 				</ul>
+				<div class="todo-lists-spinner-container" v-else>
+					<fa-icon class="todo-lists-spinner" icon="spinner" spin />
+				</div>
 			</div>
 		</section>
 		<section class="todo-app-list-content">
@@ -85,12 +88,20 @@ export default class TodoApp extends Vue {
 	private addTodoListSpinner!: HTMLElement;
 
 	created() {
+		console.log('created - TodoApp');
 		this.getTodoLists();
 		// this.devMode();
 	}
 
 	mounted() {
 		this.findAddTodoListModalElements();
+	}
+
+	public get isTodoListsLoaded(): boolean {
+		if (this.todoLists.length > 0) {
+			return true;
+		}
+		return false;
 	}
 
 	private openAddTodoListModal() {
@@ -117,6 +128,13 @@ export default class TodoApp extends Vue {
 		) as HTMLElement;
 	}
 
+	private isSectionLoading(spinner: HTMLElement, isLoading: boolean) {
+		if (isLoading) {
+			spinner.style.display = 'inline-block';
+		} else {
+			this.addTodoListSpinner.style.display = 'none';
+		}
+	}
 	private setActiveList(todoItems: TodoItemData[]) {
 		this.activeTodoItems = todoItems;
 	}
@@ -163,14 +181,14 @@ export default class TodoApp extends Vue {
 			.post(`/api/TodoLists`, dataObj)
 			.then((res) => {
 				this.addTodoListSubmitBtn.disabled = true;
-				this.addTodoListSpinner.style.display = 'inline-block';
-				console.log(res.data);
+				this.isSectionLoading(this.addTodoListSpinner, true);
 				this.todoLists.push(new TodoListData(res.data));
+				return new Promise((resolve) => setTimeout(resolve, 1500));
 			})
 			.catch((error) => console.log(error.response.data))
 			.finally(() => {
 				this.addTodoListSubmitBtn.disabled = false;
-				this.addTodoListSpinner.style.display = 'none';
+				this.isSectionLoading(this.addTodoListSpinner, false);
 				this.addTodoListModal.style.display = 'none';
 				this.newTodoListName = '';
 			});
@@ -192,7 +210,7 @@ export default class TodoApp extends Vue {
 }
 .add-todo-list-modal-content {
 	background-color: #d6ffd9;
-	margin: 15% auto;
+	margin: 10% auto;
 	padding: 5em;
 	border: 1px solid #888;
 	width: 80%;
@@ -250,8 +268,22 @@ export default class TodoApp extends Vue {
 }
 
 .todo-app-sidebar {
+	display: grid;
+	grid-template-rows: max-content;
+
 	background-color: #7ee289;
 	border-radius: 10px 0 0 10px;
+}
+
+.todo-lists-spinner-container {
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.todo-lists-spinner {
+	font-size: 2rem;
 }
 
 .sidebar-top {
