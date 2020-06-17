@@ -1,13 +1,20 @@
 <template>
 	<div class="todo-list">
-		<section class="todo-list-main-top">
-			<h1>List name</h1>
-			<button id="addTodoBtn" class="add-todo-item-btn">
+		<section class="todo-list-main-top" v-if="todoList !== null">
+			<h1>{{ todoList.listName }}</h1>
+			<button class="del-todo-list-btn" @click="deleteTodoList">
+				<fa-icon icon="trash" /> del list
+			</button>
+			<button
+				id="addTodoBtn"
+				class="add-todo-item-btn"
+				@click="showModal"
+			>
 				<fa-icon icon="plus-circle" /> add item
 			</button>
 		</section>
 
-		<section class="todo-items-container" v-if="isTodoListDataLoaded">
+		<section class="todo-items-container">
 			<div id="addTodoModal" class="add-todo-modal">
 				<div class="add-todo-modal-content">
 					<span id="closeTodoModal" class="close-todo-modal"
@@ -51,9 +58,12 @@
 				Loading data <fa-icon icon="spinner" spin />
 			</div> -->
 
-			<div v-if="todoItems !== null">
-				<div v-if="todoItems.length > 0">
-					<div v-bind:key="item.id" v-for="item in todoItems">
+			<div v-if="todoList !== null">
+				<div v-if="todoList.todoItems.length > 0">
+					<div
+						v-bind:key="item.id"
+						v-for="item in todoList.todoItems"
+					>
 						<TodoItem
 							:todo-item-data="item"
 							v-on:delete-item-event="deleteTodoItem"
@@ -67,11 +77,11 @@
 				<h3>Select a list to get started</h3>
 			</div>
 		</section>
-		<section v-else>
+		<!-- <section v-else>
 			<h3>
 				An error has occurred, please try to refresh or try again later
 			</h3>
-		</section>
+		</section> -->
 	</div>
 </template>
 
@@ -81,6 +91,7 @@ import TodoItem from '@/components/TodoItem.vue';
 import {TodoItemData} from '@/Models/TodoItemData';
 import axios from 'axios';
 import {Component, Vue, Prop} from 'vue-property-decorator';
+import {TodoListData} from '../Models/TodoListData';
 
 @Component({
 	components: {
@@ -93,17 +104,19 @@ export default class TodoList extends Vue {
 	private newTodoItemDesc = '';
 	private newTodoItemIsComplete = false;
 
-	private isTodoListDataLoaded = true;
+	//private isTodoListDataLoaded = true;
 	private isLoading = true;
 
 	private addTodoSubmitBtn!: HTMLButtonElement;
 	private addTodoModal!: HTMLDivElement;
 	private addTodoSpinner!: HTMLElement;
 
-	@Prop() todoItems!: TodoItemData[];
-	public get getTodoItems(): TodoItemData[] {
-		return this.todoItems;
-	}
+	@Prop() todoList!: TodoListData | null;
+	//@Prop() todoItems!: TodoItemData[];
+
+	// public get getTodoItems(): TodoItemData[] {
+	// 	return this.todoItems;
+	// }
 
 	// lifecycle hook, fires of depending on the stage of vue
 	created() {
@@ -111,6 +124,17 @@ export default class TodoList extends Vue {
 	}
 	mounted() {
 		this.addTodoModalSetup();
+	}
+
+	// updated() {
+	// 	console.log(this.todoList);
+	// }
+
+	private showModal() {
+		this.addTodoModal.style.display = 'block';
+	}
+	private updateTodoLists() {
+		this.$emit('on-delete-list', this.todoList);
 	}
 
 	private addTodoModalSetup() {
@@ -125,16 +149,17 @@ export default class TodoList extends Vue {
 			'addTodoSubmitBtn'
 		) as HTMLButtonElement;
 
-		const addTodoBtn = document.getElementById(
-			'addTodoBtn'
-		) as HTMLButtonElement;
+		// const addTodoBtn = document.getElementById(
+		// 	'addTodoBtn'
+		// ) as HTMLButtonElement;
+
 		const closeTodoModal = document.getElementById(
 			'closeTodoModal'
 		) as HTMLSpanElement;
 
-		addTodoBtn.onclick = () => {
-			this.addTodoModal.style.display = 'block';
-		};
+		// addTodoBtn.onclick = () => {
+		// 	this.addTodoModal.style.display = 'block';
+		// };
 
 		closeTodoModal.onclick = () => {
 			this.addTodoModal.style.display = 'none';
@@ -179,7 +204,8 @@ export default class TodoList extends Vue {
 			.then((res) => {
 				this.addTodoSubmitBtn.disabled = true;
 				this.addTodoSpinner.style.display = 'inline-block';
-				this.todoItems.push(new TodoItemData(res.data));
+				//this.todoItems.push(new TodoItemData(res.data));
+				this.todoList?.todoItems.push(new TodoItemData(res.data)); //TODO #31 block req
 
 				//small delay, might remove it
 				return new Promise((resolve) => setTimeout(resolve, 1000));
@@ -200,7 +226,11 @@ export default class TodoList extends Vue {
 			.delete(`/api/TodoItems/${item.id}`)
 			.then((res) => {
 				delBtn.disabled = true;
-				this.todoItems.splice(this.todoItems.indexOf(item), 1);
+				//this.todoItems.splice(this.todoItems.indexOf(item), 1);
+				const list = this.todoList; // TODO #31 block req
+				if (list !== null) {
+					list.todoItems.splice(list.todoItems.indexOf(item), 1);
+				}
 			})
 			.catch((error) => {
 				console.log(error.response.data);
@@ -228,6 +258,19 @@ export default class TodoList extends Vue {
 				console.log(error.response.data);
 				//location.reload(); // Don't think this is the best idea
 				item.resetDefault(); // hmm
+			});
+	}
+
+	// Del list
+	private deleteTodoList() {
+		axios
+			.delete(`/api/TodoLists/${this.todoList?.id}`)
+			.then((res) => {
+				//delBtn.disabled = true;
+				this.updateTodoLists();
+			})
+			.catch((error) => {
+				console.log(error.response.data);
 			});
 	}
 }

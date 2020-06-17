@@ -46,7 +46,7 @@
 					<li
 						:key="list.id"
 						v-for="list in todoLists"
-						@click="setActiveList(list.todoItems)"
+						@click="setActiveList(list)"
 					>
 						<span class="fa-li"><fa-icon icon="list-ul"/></span>
 						{{ list.listName }}
@@ -58,7 +58,10 @@
 			</div>
 		</section>
 		<section class="todo-app-list-content">
-			<TodoList :todo-items="activeTodoItems" />
+			<TodoList
+				:todo-list="activeTodoList"
+				v-on:on-delete-list="onDeleteTodoList"
+			/>
 		</section>
 	</div>
 </template>
@@ -78,9 +81,10 @@ import {TodoListData} from '@/Models/TodoListData';
 export default class TodoApp extends Vue {
 	private readonly pageTitle = 'Todo App';
 	private newTodoListName = '';
-	private activeTodoItems: TodoItemData[] | null = null;
+	//private activeTodoItems: TodoItemData[] | null = null;
 
-	todoLists: TodoListData[] = [];
+	private todoLists: TodoListData[] = [];
+	private activeTodoList: TodoListData | null = null;
 
 	private addTodoListModal!: HTMLElement;
 	private closeTodoListModal!: HTMLElement;
@@ -135,8 +139,8 @@ export default class TodoApp extends Vue {
 			this.addTodoListSpinner.style.display = 'none';
 		}
 	}
-	private setActiveList(todoItems: TodoItemData[]) {
-		this.activeTodoItems = todoItems;
+	private setActiveList(todoList: TodoListData) {
+		this.activeTodoList = todoList;
 	}
 
 	private createNewList() {
@@ -160,6 +164,9 @@ export default class TodoApp extends Vue {
 				for (let i = 0; i < result.data.length; i++) {
 					const element = result.data[i];
 					this.todoLists.push(new TodoListData(element));
+				}
+				if (this.todoLists.length > 0) {
+					this.activeTodoList = this.todoLists[0];
 				}
 			})
 			.catch((error) => {
@@ -192,6 +199,15 @@ export default class TodoApp extends Vue {
 				this.addTodoListModal.style.display = 'none';
 				this.newTodoListName = '';
 			});
+	}
+
+	private onDeleteTodoList(todoList: TodoListData) {
+		this.todoLists.splice(this.todoLists.indexOf(todoList), 1);
+		if (this.todoLists.length > 0) {
+			this.activeTodoList = this.todoLists[0];
+		} else {
+			this.activeTodoList = null;
+		}
 	}
 }
 </script>
