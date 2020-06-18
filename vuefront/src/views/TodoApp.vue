@@ -42,16 +42,21 @@
 				</button>
 			</div>
 			<div class="sidebar-bot">
-				<ul class="fa-ul" v-if="isTodoListsLoaded">
-					<li
-						:key="list.id"
-						v-for="list in todoLists"
-						@click="setActiveList(list)"
-					>
-						<span class="fa-li"><fa-icon icon="list-ul"/></span>
-						{{ list.listName }}
-					</li>
-				</ul>
+				<div v-if="isTodoListsLoaded">
+					<ul class="fa-ul" v-if="!todoListError">
+						<li
+							:key="list.id"
+							v-for="list in todoLists"
+							@click="setActiveList(list)"
+						>
+							<span class="fa-li"><fa-icon icon="list-ul"/></span>
+							{{ list.listName }}
+						</li>
+					</ul>
+					<div v-else>
+						Something went wrong refresh(temp)
+					</div>
+				</div>
 				<div class="todo-lists-spinner-container" v-else>
 					<fa-icon class="todo-lists-spinner" icon="spinner" spin />
 				</div>
@@ -81,6 +86,8 @@ import {TodoListData} from '@/Models/TodoListData';
 export default class TodoApp extends Vue {
 	private readonly pageTitle = 'Todo App';
 	private newTodoListName = '';
+	private isTodoListsLoaded = false;
+	private todoListError = false;
 	//private activeTodoItems: TodoItemData[] | null = null;
 
 	private todoLists: TodoListData[] = [];
@@ -92,20 +99,11 @@ export default class TodoApp extends Vue {
 	private addTodoListSpinner!: HTMLElement;
 
 	created() {
-		console.log('created - TodoApp');
 		this.getTodoLists();
-		// this.devMode();
 	}
 
 	mounted() {
 		this.findAddTodoListModalElements();
-	}
-
-	public get isTodoListsLoaded(): boolean {
-		if (this.todoLists.length > 0) {
-			return true;
-		}
-		return false;
 	}
 
 	private openAddTodoListModal() {
@@ -171,10 +169,10 @@ export default class TodoApp extends Vue {
 			})
 			.catch((error) => {
 				console.log(error);
-				//this.isTodoListDataLoaded = false;
+				this.todoListError = true; // TODO #24
 			})
 			.finally(() => {
-				//this.isLoading = false;
+				this.isTodoListsLoaded = true;
 			});
 	}
 

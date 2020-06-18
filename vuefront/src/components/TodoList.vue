@@ -1,17 +1,22 @@
 <template>
 	<div class="todo-list">
 		<section class="todo-list-main-top" v-if="todoList !== null">
-			<h1>{{ todoList.listName }}</h1>
-			<button class="del-todo-list-btn" @click="deleteTodoList">
-				<fa-icon icon="trash" /> del list
-			</button>
-			<button
-				id="addTodoBtn"
-				class="add-todo-item-btn"
-				@click="showModal"
-			>
-				<fa-icon icon="plus-circle" /> add item
-			</button>
+			<div v-if="editListMode">
+				<input type="text" :placeholder="todoList.listName" />
+				<button @click="toggleEditListMode">
+					<fa-icon icon="wrench" /> cancel edit
+				</button>
+				<button class="del-todo-list-btn" @click="deleteTodoList">
+					<fa-icon icon="trash" /> del list
+				</button>
+			</div>
+			<div v-else>
+				<h1>{{ todoList.listName }}</h1>
+
+				<button @click="toggleEditListMode">
+					<fa-icon icon="wrench" /> Edit
+				</button>
+			</div>
 		</section>
 
 		<section class="todo-items-container">
@@ -70,6 +75,14 @@
 							v-on:edit-item-event="editTodoItem"
 						/>
 					</div>
+
+					<button
+						id="addTodoBtn"
+						class="add-todo-item-btn"
+						@click="showModal"
+					>
+						<fa-icon icon="plus-circle" /> add item
+					</button>
 				</div>
 				<div v-else><h3>List is empty</h3></div>
 			</div>
@@ -103,6 +116,7 @@ export default class TodoList extends Vue {
 	private newTodoItemName = '';
 	private newTodoItemDesc = '';
 	private newTodoItemIsComplete = false;
+	private editListMode = false;
 
 	//private isTodoListDataLoaded = true;
 	private isLoading = true;
@@ -112,11 +126,6 @@ export default class TodoList extends Vue {
 	private addTodoSpinner!: HTMLElement;
 
 	@Prop() todoList!: TodoListData | null;
-	//@Prop() todoItems!: TodoItemData[];
-
-	// public get getTodoItems(): TodoItemData[] {
-	// 	return this.todoItems;
-	// }
 
 	// lifecycle hook, fires of depending on the stage of vue
 	created() {
@@ -130,6 +139,10 @@ export default class TodoList extends Vue {
 	// 	console.log(this.todoList);
 	// }
 
+	private toggleEditListMode() {
+		this.editListMode = !this.editListMode;
+		console.log(this.editListMode);
+	}
 	private showModal() {
 		this.addTodoModal.style.display = 'block';
 	}
@@ -285,7 +298,7 @@ export default class TodoList extends Vue {
 	background-color: #68d282;
 	border-radius: 10px;
 	padding-top: 2em;
-	padding-bottom: 2em;
+	/* padding-bottom: 2em; */
 	min-height: 100px;
 }
 
@@ -296,13 +309,15 @@ export default class TodoList extends Vue {
 }
 
 .add-todo-item-btn {
-	background-color: rgb(27, 233, 79);
+	background-color: #28e91b;
 	border: none;
 	color: white;
 	padding: 1em;
 	font-size: 1rem;
 	cursor: pointer;
-	border-radius: 15px;
+
+	border-radius: 0px 0px 10px 10px;
+	width: 100%;
 }
 
 .add-todo-modal input {
