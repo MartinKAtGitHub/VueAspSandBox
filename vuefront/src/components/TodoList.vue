@@ -1,64 +1,85 @@
 <template>
+	<!-- Edit todo list modal -->
 	<div class="todo-list">
-		<section class="todo-list-main-top" v-if="todoList !== null">
-			<div v-if="editListMode">
-				<input type="text" :placeholder="todoList.listName" />
-				<button @click="toggleEditListMode">
-					<fa-icon icon="wrench" /> cancel edit
-				</button>
-				<button class="del-todo-list-btn" @click="deleteTodoList">
-					<fa-icon icon="trash" /> del list
-				</button>
-			</div>
-			<div v-else>
-				<h1>{{ todoList.listName }}</h1>
+		<div id="editTodoListModal" class="todo-app-modal">
+			<div class="todo-app-modal-content">
+				<div class="todo-app-modal-content-header">
+					<span
+						@click="closeEditTodoListModal"
+						class="todo-app-modal-close"
+						>&times;</span
+					>
+				</div>
 
-				<button @click="toggleEditListMode">
-					<fa-icon icon="wrench" /> Edit
-				</button>
+				<form @submit.prevent="updateTodoList" v-if="todoList !== null">
+					<input
+						type="text"
+						v-model="newTodoListName"
+						:placeholder="todoList.listName"
+					/>
+
+					<button id="" class="" type="submit">
+						Update Todo List
+						<!-- <fa-icon id="" class="" icon="spinner" spin /> -->
+					</button>
+				</form>
 			</div>
+		</div>
+		<!-- Add new todo item modal -->
+		<div id="addTodoModal" class="todo-app-modal">
+			<div class="todo-app-modal-content">
+				<div class="todo-app-modal-content-header">
+					<span
+						@click="closeAddTodoModal"
+						class="todo-app-modal-close"
+						>&times;</span
+					>
+				</div>
+				<form @submit="addTodoItem">
+					<input
+						type="text"
+						v-model="newTodoItemName"
+						name="newTodoItemName"
+						placeholder="Todo Name"
+					/>
+					<input
+						type="text"
+						v-model="newTodoItemDesc"
+						name="newTodoItemDesc"
+						placeholder="Todo Description"
+					/>
+					<!-- <input type="submit" /> -->
+					<button
+						id="addTodoSubmitBtn"
+						class="add-todo-submit-btn"
+						type="submit"
+					>
+						Add Todo
+						<fa-icon
+							id="addTodoSpinner"
+							class="add-todo-spinner"
+							icon="spinner"
+							spin
+						/>
+					</button>
+				</form>
+				<!-- </div> -->
+			</div>
+		</div>
+
+		<section class="todo-list-main-top" v-if="todoList !== null">
+			<h1 @click="openEditTodoListModal">{{ todoList.listName }}</h1>
+
+			<!-- <button @click="toggleEditListMode">
+				<fa-icon icon="wrench" /> Edit
+			</button>
+
+			<button class="del-todo-list-btn" @click="deleteTodoList">
+				<fa-icon icon="trash" /> del list
+			</button> -->
 		</section>
 
 		<section class="todo-items-container">
-			<div id="addTodoModal" class="add-todo-modal">
-				<div class="add-todo-modal-content">
-					<span id="closeTodoModal" class="close-todo-modal"
-						>&times;</span
-					>
-					<!-- <div id="addTodoContainer" class=""> -->
-
-					<form @submit="addTodoItem">
-						<input
-							type="text"
-							v-model="newTodoItemName"
-							name="newTodoItemName"
-							placeholder="Todo Name"
-						/>
-						<input
-							type="text"
-							v-model="newTodoItemDesc"
-							name="newTodoItemDesc"
-							placeholder="Todo Description"
-						/>
-						<!-- <input type="submit" /> -->
-						<button
-							id="addTodoSubmitBtn"
-							class="add-todo-submit-btn"
-							type="submit"
-						>
-							Add Todo
-							<fa-icon
-								id="addTodoSpinner"
-								class="add-todo-spinner"
-								icon="spinner"
-								spin
-							/>
-						</button>
-					</form>
-					<!-- </div> -->
-				</div>
-			</div>
-
 			<!-- <div v-if="isLoading">
 				Loading data <fa-icon icon="spinner" spin />
 			</div> -->
@@ -79,7 +100,7 @@
 					<button
 						id="addTodoBtn"
 						class="add-todo-item-btn"
-						@click="showModal"
+						@click="openAddTodoModal"
 					>
 						<fa-icon icon="plus-circle" /> add item
 					</button>
@@ -113,13 +134,19 @@ import {TodoListData} from '../Models/TodoListData';
 })
 export default class TodoList extends Vue {
 	private readonly pageTitle = 'Todo list';
+
+	private newTodoListName = '';
+
 	private newTodoItemName = '';
 	private newTodoItemDesc = '';
 	private newTodoItemIsComplete = false;
-	private editListMode = false;
+
+	// private editListMode = false;
 
 	//private isTodoListDataLoaded = true;
 	private isLoading = true;
+
+	private editTodoListModal!: HTMLDivElement;
 
 	private addTodoSubmitBtn!: HTMLButtonElement;
 	private addTodoModal!: HTMLDivElement;
@@ -132,25 +159,10 @@ export default class TodoList extends Vue {
 		//this.getListItems();
 	}
 	mounted() {
-		this.addTodoModalSetup();
-	}
+		this.editTodoListModal = document.getElementById(
+			'editTodoListModal'
+		) as HTMLDivElement;
 
-	// updated() {
-	// 	console.log(this.todoList);
-	// }
-
-	private toggleEditListMode() {
-		this.editListMode = !this.editListMode;
-		console.log(this.editListMode);
-	}
-	private showModal() {
-		this.addTodoModal.style.display = 'block';
-	}
-	private updateTodoLists() {
-		this.$emit('on-delete-list', this.todoList);
-	}
-
-	private addTodoModalSetup() {
 		this.addTodoSpinner = document.getElementById(
 			'addTodoSpinner'
 		) as HTMLElement;
@@ -158,31 +170,43 @@ export default class TodoList extends Vue {
 		this.addTodoModal = document.getElementById(
 			'addTodoModal'
 		) as HTMLDivElement;
+
 		this.addTodoSubmitBtn = document.getElementById(
 			'addTodoSubmitBtn'
 		) as HTMLButtonElement;
-
-		// const addTodoBtn = document.getElementById(
-		// 	'addTodoBtn'
-		// ) as HTMLButtonElement;
-
-		const closeTodoModal = document.getElementById(
-			'closeTodoModal'
-		) as HTMLSpanElement;
-
-		// addTodoBtn.onclick = () => {
-		// 	this.addTodoModal.style.display = 'block';
-		// };
-
-		closeTodoModal.onclick = () => {
-			this.addTodoModal.style.display = 'none';
-		};
 
 		window.onclick = (e: Event) => {
 			if (e.target == this.addTodoModal) {
 				this.addTodoModal.style.display = 'none';
 			}
+
+			if (e.target == this.editTodoListModal) {
+				this.editTodoListModal.style.display = 'none';
+			}
 		};
+	}
+
+	// private toggleEditListMode() {
+	// 	this.editListMode = !this.editListMode;
+	// }
+
+	private openEditTodoListModal() {
+		this.editTodoListModal.style.display = 'block';
+	}
+	private closeEditTodoListModal() {
+		this.editTodoListModal.style.display = 'none';
+	}
+
+	private openAddTodoModal() {
+		this.addTodoModal.style.display = 'block';
+	}
+
+	private closeAddTodoModal() {
+		this.addTodoModal.style.display = 'none';
+	}
+
+	private updateTodoLists() {
+		this.$emit('on-delete-list', this.todoList);
 	}
 
 	//get
@@ -274,6 +298,29 @@ export default class TodoList extends Vue {
 			});
 	}
 
+	private updateTodoList() {
+		//TODO #31
+		if (this.todoList !== null) {
+			const dataObj = {
+				id: this.todoList.id,
+				name: this.newTodoListName,
+			};
+
+			axios
+				.put(`/api/TodoLists/${this.todoList.id}`, dataObj)
+				.then(() => {
+					if (this.todoList !== null) {
+						this.todoList.listName = this.newTodoListName;
+						this.newTodoListName = '';
+					}
+				})
+				.catch((error) => {
+					console.log(error);
+				});
+		} else {
+			console.error('Todo list is NULL, but you are trying to edit it');
+		}
+	}
 	// Del list
 	private deleteTodoList() {
 		axios
@@ -307,7 +354,14 @@ export default class TodoList extends Vue {
 	justify-content: space-between;
 	padding: 1em;
 }
-
+.todo-list-main-top h1 {
+	box-sizing: border-box;
+	cursor: pointer;
+	word-wrap: break-word;
+}
+.todo-list-main-top h1:hover {
+	text-decoration: underline;
+}
 .add-todo-item-btn {
 	background-color: #28e91b;
 	border: none;
@@ -318,19 +372,6 @@ export default class TodoList extends Vue {
 
 	border-radius: 0px 0px 10px 10px;
 	width: 100%;
-}
-
-.add-todo-modal input {
-	display: block;
-	padding: 1em 0.5em;
-	margin: auto;
-	width: 100%;
-	margin-bottom: 4em;
-	background: none;
-	border: none;
-	border-bottom: 2px solid #249090;
-	cursor: pointer;
-	font-size: 1.2rem;
 }
 
 .add-todo-submit-btn {
@@ -347,39 +388,5 @@ export default class TodoList extends Vue {
 
 .add-todo-spinner {
 	display: none;
-}
-
-.add-todo-modal {
-	display: none;
-	position: fixed;
-	z-index: 1;
-	left: 0;
-	top: 0;
-	width: 100%;
-	height: 100%;
-	overflow: auto;
-	background-color: rgba(0, 0, 0, 0.4);
-}
-.add-todo-modal-content {
-	background-color: #d6ffd9;
-	margin: 15% auto;
-	padding: 5em;
-	border: 1px solid #888;
-	width: 80%;
-	box-sizing: border-box;
-}
-
-.close-todo-modal {
-	color: #aaa;
-	float: right;
-	font-size: 2em;
-	font-weight: bold;
-	margin-bottom: 1em;
-}
-.close-todo-modal:hover,
-.close-todo-modal:focus {
-	color: black;
-	text-decoration: none;
-	cursor: pointer;
 }
 </style>

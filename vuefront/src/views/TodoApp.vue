@@ -1,14 +1,17 @@
 <template>
 	<div class="todo-app">
 		<!-- add new list modal -->
-		<div id="addTodoListModal" class="add-todo-list-modal">
-			<div class="add-todo-list-modal-content">
-				<span
-					@click="closeAddTodoListModal"
-					id="closeTodoListModal"
-					class="close-todo-list-modal"
-					>&times;</span
-				>
+
+		<div id="addTodoListModal" class="todo-app-modal">
+			<div class="todo-app-modal-content">
+				<div class="todo-app-modal-content-header">
+					<span
+						@click="closeAddTodoListModal"
+						id="closeTodoListModal"
+						class="todo-app-modal-close"
+						>&times;</span
+					>
+				</div>
 				<h2>Add New List</h2>
 
 				<form @submit.prevent="addTodoList">
@@ -35,7 +38,7 @@
 			</div>
 		</div>
 
-		<section class="todo-app-sidebar">
+		<aside class="todo-app-sidebar">
 			<div class="sidebar-top">
 				<button @click="openAddTodoListModal" class="add-todo-list-btn">
 					<fa-icon icon="plus-circle" />
@@ -61,7 +64,7 @@
 					<fa-icon class="todo-lists-spinner" icon="spinner" spin />
 				</div>
 			</div>
-		</section>
+		</aside>
 		<section class="todo-app-list-content">
 			<TodoList
 				:todo-list="activeTodoList"
@@ -211,39 +214,6 @@ export default class TodoApp extends Vue {
 </script>
 
 <style scoped>
-.add-todo-list-modal {
-	display: none;
-	position: fixed;
-	z-index: 1;
-	left: 0;
-	top: 0;
-	width: 100%;
-	height: 100%;
-	overflow: auto;
-	background-color: rgba(0, 0, 0, 0.4);
-}
-.add-todo-list-modal-content {
-	background-color: #d6ffd9;
-	margin: 10% auto;
-	padding: 5em;
-	border: 1px solid #888;
-	width: 80%;
-	box-sizing: border-box;
-}
-
-.add-todo-list-modal input {
-	display: block;
-	padding: 1em 0.5em;
-	margin: auto;
-	width: 100%;
-	margin-bottom: 4em;
-	background: none;
-	border: none;
-	border-bottom: 2px solid #249090;
-	cursor: pointer;
-	font-size: 1.2rem;
-}
-
 .add-todo-list-submit-btn {
 	display: block;
 	padding: 1em 2em;
@@ -258,19 +228,6 @@ export default class TodoApp extends Vue {
 
 .add-todo-list-spinner {
 	display: none;
-}
-.close-todo-list-modal {
-	color: #aaa;
-	float: right;
-	font-size: 2em;
-	font-weight: bold;
-	margin-bottom: 1em;
-}
-.close-todo-list-modal:hover,
-.close-todo-list-modal:focus {
-	color: black;
-	text-decoration: none;
-	cursor: pointer;
 }
 
 .todo-app {
@@ -337,5 +294,59 @@ export default class TodoApp extends Vue {
 
 .add-todo-list-btn:active {
 	background-color: #3fa236;
+}
+</style>
+
+<style>
+/* GLOBAL STYLING FOR TODO APP*/
+
+/*Modal style*/
+.todo-app-modal {
+	display: none;
+	position: fixed;
+	z-index: 1;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	overflow: auto;
+	background-color: rgba(0, 0, 0, 0.4);
+}
+.todo-app-modal-content {
+	background-color: #d6ffd9;
+	margin: 10% auto;
+	padding: 5em;
+	border: 1px solid #888;
+	width: 80%;
+	box-sizing: border-box;
+}
+.todo-app-modal-content-header {
+	text-align: right;
+}
+.todo-app-modal input {
+	display: block;
+	box-sizing: border-box;
+	padding: 1em 0.5em;
+	margin: auto;
+	width: 100%;
+	margin-bottom: 4em;
+	background: none;
+	border: none;
+	border-bottom: 2px solid #249090;
+	cursor: pointer;
+	font-size: 1.2rem;
+}
+.todo-app-modal-close {
+	color: #aaa;
+
+	font-size: 2em;
+	font-weight: bold;
+	margin-bottom: 1em;
+}
+.todo-app-modal-close:hover,
+.todo-app-modal-close:focus {
+	color: black;
+	text-decoration: none;
+	cursor: pointer;
 }
 </style>
