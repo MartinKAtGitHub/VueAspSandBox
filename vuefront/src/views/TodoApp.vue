@@ -67,9 +67,11 @@
 		</aside>
 		<section class="todo-app-list-content">
 			<TodoList
+				v-if="activeTodoList !== null"
 				:todo-list="activeTodoList"
 				v-on:on-delete-list="onDeleteTodoList"
 			/>
+			<div v-else>Cant find list. temp</div>
 		</section>
 	</div>
 </template>
@@ -321,12 +323,14 @@ export default class TodoApp extends Vue {
 	box-sizing: border-box;
 }
 .todo-app-modal-content-header {
-	text-align: right;
+	display: flex;
+	justify-content: space-between;
+	margin-bottom: 2em;
 }
 .todo-app-modal input {
 	display: block;
 	box-sizing: border-box;
-	padding: 1em 0.5em;
+
 	margin: auto;
 	width: 100%;
 	margin-bottom: 4em;
@@ -337,7 +341,7 @@ export default class TodoApp extends Vue {
 	font-size: 1.2rem;
 }
 .todo-app-modal-close {
-	color: #aaa;
+	color: #4e4d4d;
 
 	font-size: 2em;
 	font-weight: bold;

@@ -63,15 +63,21 @@ namespace VueSandbox.Core.Controllers
 
         // PUT: api/TodoLists/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutTodoList(int id, TodoList todoList)
+        public async Task<IActionResult> PutTodoList(int id, PutTodoListViewModel todoListModel)
         {
-            if (id != todoList.Id)
+            if (id != todoListModel.Id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(todoList).State = EntityState.Modified;
+            var todoList = await _context.TodoLists.FindAsync(id);
+            if (todoList == null)
+            {
+                return NotFound();
+            }
 
+            todoList.Name = todoListModel.Name;
+       
             try
             {
                 await _context.SaveChangesAsync();
