@@ -5,7 +5,6 @@
 			<div class="todo-app-modal-content edit-modal">
 				<div class="todo-app-modal-content-header">
 					<h2>Edit List</h2>
-
 					<span
 						@click="closeEditTodoListModal"
 						class="todo-app-modal-close"
@@ -19,7 +18,10 @@
 						v-model="newTodoListName"
 						:placeholder="todoList.listName"
 					/>
-					<div>
+					<div
+						id="todoListEditOptions"
+						class="todo-list-edit-options"
+					>
 						<button
 							id="editTodoListSubmitButton"
 							class="edit-todo-list-submit-btn"
@@ -35,18 +37,41 @@
 						</button>
 
 						<button
-							id="deleteTodoListSubmitButton"
 							class="delete-todo-list-btn"
 							type="button"
+							@click="confirmDeleteTodoList"
 						>
 							Delete This List
-							<fa-icon
-								id="deleteTodoListSpinner"
-								class="delete-todo-list-spinner"
-								icon="spinner"
-								spin
-							/>
 						</button>
+					</div>
+					<div
+						id="todoListDelConfirm"
+						class="todo-list-edit-delete-confirm"
+					>
+						<h3>Delete {{ todoList.listName }}?</h3>
+						<div>
+							<button
+								id="deleteTodoListBtn"
+								class="delete-todo-list-yes-btn"
+								type="button"
+								@click="confirmDeleteTodoListYes"
+							>
+								Yes
+								<fa-icon
+									id="deleteTodoListSpinner"
+									class="delete-todo-list-spinner"
+									icon="spinner"
+									spin
+								/>
+							</button>
+							<button
+								class="delete-todo-list-no-btn"
+								type="button"
+								@click="confirmDeleteTodoListNo"
+							>
+								No
+							</button>
+						</div>
 					</div>
 				</form>
 			</div>
@@ -55,6 +80,7 @@
 		<div id="addTodoModal" class="todo-app-modal">
 			<div class="todo-app-modal-content">
 				<div class="todo-app-modal-content-header">
+					<h2>Add item</h2>
 					<span
 						@click="closeAddTodoModal"
 						class="todo-app-modal-close"
@@ -94,7 +120,10 @@
 		</div>
 
 		<section class="todo-list-main-top">
-			<h1 @click="openEditTodoListModal">{{ todoList.listName }}</h1>
+			<h1 @click="openEditTodoListModal">
+				<!-- <fa-icon icon="wrench" /> {{ todoList.listName }} -->
+				{{ todoList.listName }}
+			</h1>
 		</section>
 
 		<section class="todo-items-container">
@@ -106,16 +135,15 @@
 						v-on:edit-item-event="editTodoItem"
 					/>
 				</div>
-
-				<button
-					id="addTodoBtn"
-					class="add-todo-item-btn"
-					@click="openAddTodoModal"
-				>
-					<fa-icon icon="plus-circle" /> add item
-				</button>
 			</div>
 			<div v-else><h3>List is empty</h3></div>
+			<button
+				id="addTodoBtn"
+				class="add-todo-item-btn"
+				@click="openAddTodoModal"
+			>
+				<fa-icon icon="plus-circle" /> add item
+			</button>
 		</section>
 	</div>
 </template>
@@ -148,17 +176,38 @@ export default class TodoList extends Vue {
 	private editTodoListSubmitButton!: HTMLButtonElement;
 	private editTodoListSpinner!: HTMLElement;
 
+	private deleteTodoListBtn!: HTMLButtonElement;
+	private deleteTodoListSpinner!: HTMLElement;
+
 	private addTodoSubmitBtn!: HTMLButtonElement;
 	private addTodoModal!: HTMLDivElement;
 	private addTodoSpinner!: HTMLElement;
 
+	private todoListEditOptions!: HTMLDivElement;
+	private todoListDelConfirm!: HTMLDivElement;
+
 	@Prop() todoList!: TodoListData | null;
 
-	// lifecycle hook, fires of depending on the stage of vue
+	// lifecycle hook
 	created() {
 		//this.getListItems();
 	}
+
 	mounted() {
+		this.todoListEditOptions = document.getElementById(
+			'todoListEditOptions'
+		) as HTMLDivElement;
+		this.todoListDelConfirm = document.getElementById(
+			'todoListDelConfirm'
+		) as HTMLDivElement;
+
+		this.deleteTodoListBtn = document.getElementById(
+			'deleteTodoListBtn'
+		) as HTMLButtonElement;
+		this.deleteTodoListSpinner = document.getElementById(
+			'deleteTodoListSpinner'
+		) as HTMLElement;
+
 		this.editTodoListModal = document.getElementById(
 			'editTodoListModal'
 		) as HTMLDivElement;
@@ -197,6 +246,7 @@ export default class TodoList extends Vue {
 	}
 	private closeEditTodoListModal() {
 		this.editTodoListModal.style.display = 'none';
+		this.confirmDeleteTodoListNo();
 	}
 
 	private openAddTodoModal() {
@@ -207,28 +257,18 @@ export default class TodoList extends Vue {
 		this.addTodoModal.style.display = 'none';
 	}
 
-	private updateTodoLists() {
-		this.$emit('on-delete-list', this.todoList);
+	private confirmDeleteTodoList() {
+		this.todoListEditOptions.style.display = 'none';
+		this.todoListDelConfirm.style.display = 'block';
+	}
+	private confirmDeleteTodoListYes() {
+		this.deleteTodoList();
 	}
 
-	//get
-	// private getListItems() {
-	// 	axios
-	// 		.get('/api/TodoItems')
-	// 		.then((result) => {
-	// 			for (let i = 0; i < result.data.length; i++) {
-	// 				const element = result.data[i];
-	// 				this.todoItems.push(new TodoItemData(element));
-	// 			}
-	// 		})
-	// 		.catch((error) => {
-	// 			console.log(error);
-	// 			this.isTodoListDataLoaded = false;
-	// 		})
-	// 		.finally(() => {
-	// 			this.isLoading = false;
-	// 		});
-	// }
+	private confirmDeleteTodoListNo() {
+		this.todoListEditOptions.style.display = 'flex';
+		this.todoListDelConfirm.style.display = 'none';
+	}
 
 	// post
 	private addTodoItem(e: Event) {
@@ -317,13 +357,13 @@ export default class TodoList extends Vue {
 					if (this.todoList !== null) {
 						this.todoList.listName = this.newTodoListName;
 						this.newTodoListName = '';
+						this.closeEditTodoListModal();
 					}
 				})
 				.catch((error) => {
 					console.log(error);
 				})
 				.finally(() => {
-					this.closeEditTodoListModal();
 					this.editTodoListSubmitButton.disabled = false;
 					this.editTodoListSpinner.style.display = 'none';
 				});
@@ -333,14 +373,20 @@ export default class TodoList extends Vue {
 	}
 	// Del list
 	private deleteTodoList() {
+		this.deleteTodoListSpinner.style.display = 'inline-block';
+		this.deleteTodoListBtn.disabled = true;
 		axios
 			.delete(`/api/TodoLists/${this.todoList?.id}`)
 			.then((res) => {
-				//delBtn.disabled = true;
-				this.updateTodoLists();
+				this.closeEditTodoListModal();
+				this.$emit('on-delete-list', this.todoList);
 			})
 			.catch((error) => {
-				console.log(error.response.data);
+				console.log(error);
+			})
+			.finally(() => {
+				this.deleteTodoListSpinner.style.display = 'none';
+				this.deleteTodoListBtn.disabled = false;
 			});
 	}
 }
@@ -377,28 +423,51 @@ export default class TodoList extends Vue {
 	background-color: #9adcf7;
 }
 
-.edit-modal form div {
+.todo-list-edit-options {
 	display: flex;
 	justify-content: space-between;
 }
+.todo-list-edit-delete-confirm {
+	display: none;
+	background-color: rgba(255, 174, 0, 0.733);
+	padding: 2em;
+}
+.todo-list-edit-delete-confirm div {
+	display: flex;
+	justify-content: space-evenly;
+}
+
 .edit-modal input {
 	border-bottom: 2px solid #6878d2;
 	color: #2c3e50;
 }
+
 .add-todo-submit-btn,
 .edit-todo-list-submit-btn,
-.delete-todo-list-btn {
+.delete-todo-list-btn,
+.delete-todo-list-yes-btn,
+.delete-todo-list-no-btn {
 	display: block;
 	padding: 1em 2em;
 	border: none;
 	color: white;
 	cursor: pointer;
+	min-width: 9em;
+	min-height: 4em;
 }
 .edit-todo-list-submit-btn {
 	background-color: #5282c2;
 }
 .delete-todo-list-btn {
 	background-color: #d63a3a;
+}
+.delete-todo-list-yes-btn {
+	background-color: #d63a3a;
+	margin: auto;
+}
+.delete-todo-list-no-btn {
+	background-color: #29e23c;
+	margin: auto;
 }
 
 .add-todo-submit-btn {

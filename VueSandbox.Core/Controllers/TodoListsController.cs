@@ -25,7 +25,6 @@ namespace VueSandbox.Core.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<GetTodoListViewModel>>> GetTodoLists()
         {
-
             var todoLists = new List<GetTodoListViewModel>();
 
             todoLists = await _context.TodoLists.Include(list => list.TodoItems).Select(list => new GetTodoListViewModel

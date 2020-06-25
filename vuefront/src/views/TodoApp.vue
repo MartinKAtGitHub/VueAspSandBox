@@ -5,6 +5,7 @@
 		<div id="addTodoListModal" class="todo-app-modal">
 			<div class="todo-app-modal-content">
 				<div class="todo-app-modal-content-header">
+					<h2>Add New List</h2>
 					<span
 						@click="closeAddTodoListModal"
 						id="closeTodoListModal"
@@ -12,7 +13,6 @@
 						>&times;</span
 					>
 				</div>
-				<h2>Add New List</h2>
 
 				<form @submit.prevent="addTodoList">
 					<input
@@ -71,7 +71,7 @@
 				:todo-list="activeTodoList"
 				v-on:on-delete-list="onDeleteTodoList"
 			/>
-			<div v-else>Cant find list. temp</div>
+			<div v-else>No List Active. temp</div>
 		</section>
 	</div>
 </template>
