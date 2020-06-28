@@ -1,10 +1,10 @@
 <template>
-	<!-- Edit todo list modal -->
 	<div class="todo-list">
+		<!-- Edit todo list modal -->
 		<div id="editTodoListModal" class="todo-app-modal">
 			<div class="todo-app-modal-content edit-modal">
 				<div class="todo-app-modal-content-header">
-					<h2>Edit List</h2>
+					<h2>Edit Todo List</h2>
 					<span
 						@click="closeEditTodoListModal"
 						class="todo-app-modal-close"
@@ -41,7 +41,8 @@
 							type="button"
 							@click="confirmDeleteTodoList"
 						>
-							Delete This List
+							<fa-icon class="icon-del" icon="trash" /> Delete
+							List
 						</button>
 					</div>
 					<div
@@ -76,6 +77,82 @@
 				</form>
 			</div>
 		</div>
+		<!-- Edit todo item modal -->
+		<div id="editTodoItemModal" class="todo-app-modal">
+			<div class="todo-app-modal-content edit-modal">
+				<div class="todo-app-modal-content-header">
+					<h2>Edit Todo</h2>
+					<span
+						@click="closeEditTodoItemModal"
+						class="todo-app-modal-close"
+						>&times;</span
+					>
+				</div>
+
+				<form @submit.prevent="updateTodoItem(todoItemToEdit)">
+					<input
+						type="text"
+						v-model="editTodoName"
+						:placeholder="
+							todoItemToEdit !== null
+								? todoItemToEdit.defaultName
+								: ''
+						"
+					/>
+					<div
+						id="todoItemEditOptions"
+						class="todo-item-edit-options"
+					>
+						<button
+							id="editTodoItemSubmitButton"
+							class="edit-todo-item-submit-btn"
+							type="submit"
+						>
+							Update Todo
+							<!-- <fa-icon
+								id="editTodoListSpinner"
+								class="edit-todo-list-spinner"
+								icon="spinner"
+								spin
+							/> -->
+						</button>
+
+						<button class="delete-todo-item-btn" type="button">
+							<fa-icon class="icon-del" icon="trash" /> Delete
+							Todo
+						</button>
+					</div>
+					<div
+						id="todoItemDelConfirm"
+						class="todo-item-edit-delete-confirm"
+					>
+						<!-- <h3>Delete {{ todoList.listName }}?</h3> -->
+						<div>
+							<button
+								id="deleteTodoItemBtn"
+								class="delete-todo-Item-yes-btn"
+								type="button"
+							>
+								Yes
+								<fa-icon
+									id="deleteTodoItemSpinner"
+									class="delete-todo-Item-spinner"
+									icon="spinner"
+									spin
+								/>
+							</button>
+							<button
+								class="delete-todo-Item-no-btn"
+								type="button"
+							>
+								No
+							</button>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+
 		<!-- Add new todo item modal -->
 		<div id="addTodoModal" class="todo-app-modal">
 			<div class="todo-app-modal-content">
@@ -132,7 +209,8 @@
 					<TodoItem
 						:todo-item-data="item"
 						v-on:delete-item-event="deleteTodoItem"
-						v-on:edit-item-event="editTodoItem"
+						v-on:change-todo-status-event="updateTodoItem"
+						v-on:edit-todo-event="openEditTodoItemModal"
 					/>
 				</div>
 			</div>
@@ -170,11 +248,18 @@ export default class TodoList extends Vue {
 	private newTodoItemDesc = '';
 	private newTodoItemIsComplete = false;
 
+	private todoItemToEdit: TodoItemData | null = null;
+	private editTodoName = '';
+
 	private isLoading = true;
 
 	private editTodoListModal!: HTMLDivElement;
 	private editTodoListSubmitButton!: HTMLButtonElement;
 	private editTodoListSpinner!: HTMLElement;
+
+	private editTodoItemModal!: HTMLDivElement;
+	private editTodoItemSubmitButton!: HTMLButtonElement;
+	private editTodoItemSpinner!: HTMLElement;
 
 	private deleteTodoListBtn!: HTMLButtonElement;
 	private deleteTodoListSpinner!: HTMLElement;
@@ -218,6 +303,10 @@ export default class TodoList extends Vue {
 			'editTodoListSpinner'
 		) as HTMLElement;
 
+		this.editTodoItemModal = document.getElementById(
+			'editTodoItemModal'
+		) as HTMLDivElement;
+
 		this.addTodoSpinner = document.getElementById(
 			'addTodoSpinner'
 		) as HTMLElement;
@@ -248,6 +337,14 @@ export default class TodoList extends Vue {
 		this.editTodoListModal.style.display = 'none';
 		this.confirmDeleteTodoListNo();
 	}
+	private openEditTodoItemModal(activeTodo: TodoItemData) {
+		this.editTodoItemModal.style.display = 'block';
+		this.todoItemToEdit = activeTodo;
+	}
+	private closeEditTodoItemModal(activeTodo: TodoItemData) {
+		this.editTodoItemModal.style.display = 'none';
+		this.todoItemToEdit = null;
+	}
 
 	private openAddTodoModal() {
 		this.addTodoModal.style.display = 'block';
@@ -273,12 +370,15 @@ export default class TodoList extends Vue {
 	// post
 	private addTodoItem(e: Event) {
 		e.preventDefault();
+
 		this.addTodoSubmitBtn.disabled = true;
 		this.addTodoSpinner.style.display = 'inline-block';
+
 		const dataObj = {
 			name: this.newTodoItemName,
 			desc: this.newTodoItemDesc,
 			isComplete: this.newTodoItemIsComplete,
+			todoListId: this.todoList?.id,
 		};
 		axios
 			.post(`/api/TodoItems/`, dataObj)
@@ -287,7 +387,7 @@ export default class TodoList extends Vue {
 				this.todoList?.todoItems.push(new TodoItemData(res.data)); //TODO #31 block req
 
 				//small delay, might remove it
-				return new Promise((resolve) => setTimeout(resolve, 1000));
+				//return new Promise((resolve) => setTimeout(resolve, 1000));
 			})
 			.catch((error) => console.log(error.response.data))
 			.finally(() => {
@@ -301,10 +401,11 @@ export default class TodoList extends Vue {
 
 	//delete
 	private deleteTodoItem(item: TodoItemData, delBtn: HTMLButtonElement) {
+		delBtn.disabled = true;
+
 		axios
 			.delete(`/api/TodoItems/${item.id}`)
 			.then((res) => {
-				delBtn.disabled = true;
 				//this.todoItems.splice(this.todoItems.indexOf(item), 1);
 				const list = this.todoList; // TODO #31 block req
 				if (list !== null) {
@@ -317,13 +418,18 @@ export default class TodoList extends Vue {
 	}
 
 	//put
-	private editTodoItem(item: TodoItemData) {
+	private updateTodoItem(item: TodoItemData) {
+		if (this.editTodoName !== '') {
+			item.itemName = this.editTodoName;
+		}
+
 		const dataObj = {
 			id: item.id,
 			name: item.itemName,
 			desc: item.itemDesc,
 			isComplete: item.isComplete,
 		};
+
 		axios
 			.put(`/api/TodoItems/${item.id}`, dataObj)
 			.then(() => {
@@ -337,6 +443,9 @@ export default class TodoList extends Vue {
 				console.log(error.response.data);
 				//location.reload(); // Don't think this is the best idea
 				item.resetDefault(); // hmm
+			})
+			.finally(() => {
+				this.editTodoName = '';
 			});
 	}
 
@@ -423,16 +532,19 @@ export default class TodoList extends Vue {
 	background-color: #9adcf7;
 }
 
-.todo-list-edit-options {
+.todo-list-edit-options,
+.todo-item-edit-options {
 	display: flex;
 	justify-content: space-between;
 }
-.todo-list-edit-delete-confirm {
+.todo-list-edit-delete-confirm,
+.todo-item-edit-delete-confirm {
 	display: none;
 	background-color: rgba(255, 174, 0, 0.733);
 	padding: 2em;
 }
-.todo-list-edit-delete-confirm div {
+.todo-list-edit-delete-confirm div,
+.todo-item-edit-delete-confirm div {
 	display: flex;
 	justify-content: space-evenly;
 }
@@ -444,9 +556,13 @@ export default class TodoList extends Vue {
 
 .add-todo-submit-btn,
 .edit-todo-list-submit-btn,
+.edit-todo-item-submit-btn,
 .delete-todo-list-btn,
 .delete-todo-list-yes-btn,
-.delete-todo-list-no-btn {
+.delete-todo-list-no-btn,
+.delete-todo-item-btn,
+.delete-todo-item-yes-btn,
+.delete-todo-item-no-btn {
 	display: block;
 	padding: 1em 2em;
 	border: none;
@@ -455,23 +571,35 @@ export default class TodoList extends Vue {
 	min-width: 9em;
 	min-height: 4em;
 }
-.edit-todo-list-submit-btn {
+.edit-todo-list-submit-btn,
+.edit-todo-item-submit-btn {
 	background-color: #5282c2;
 }
-.delete-todo-list-btn {
+.delete-todo-list-btn,
+.delete-todo-item-btn {
 	background-color: #d63a3a;
 }
-.delete-todo-list-yes-btn {
+.delete-todo-list-yes-btn,
+.delete-todo-item-yes-btn {
 	background-color: #d63a3a;
 	margin: auto;
 }
-.delete-todo-list-no-btn {
+.delete-todo-list-no-btn,
+.delete-todo-item-no-btn {
 	background-color: #29e23c;
 	margin: auto;
 }
 
 .add-todo-submit-btn {
 	background-color: #26925e;
+}
+
+.add-todo-submit-btn:hover {
+	background-color: #1c7c4e;
+}
+
+.add-todo-submit-btn:disabled {
+	background-color: #1a5e58;
 }
 .add-todo-item-btn {
 	background-color: #28e91b;
@@ -483,10 +611,6 @@ export default class TodoList extends Vue {
 
 	border-radius: 0px 0px 10px 10px;
 	width: 100%;
-}
-
-.add-todo-submit-btn:hover {
-	background-color: #1c7c4e;
 }
 
 .add-todo-spinner,

@@ -12,9 +12,10 @@
 				:icon="['fas', 'circle']"
 			/>
 		</label>
-
-		<!-- <h3 class="todo-item-name">{{ todoItemData.itemName }}</h3> -->
-		<form
+		<div @click="OpenEditTodoItemModal" class="todo-item-name">
+			<h3>{{ todoItemData.itemName }}</h3>
+		</div>
+		<!-- <form
 			v-bind:id="`todoItemNameForm_${todoItemData.id}`"
 			@submit="editTodoItem"
 			class="todo-item-name"
@@ -26,18 +27,11 @@
 				type="text"
 				v-model="todoItemData.itemName"
 			/>
-
-			<!--Do i need this func with a todo list-->
-			<!-- <textarea
-				class="todo-item-name-input"
-				v-model="todoItemData.itemName"
-			>
-			</textarea> -->
-		</form>
-
+		</form> -->
+		<!-- 
 		<button class="todo-item-del-btn" @click="deleteItemSignal">
 			<fa-icon class="icon-del" icon="trash" />
-		</button>
+		</button> -->
 	</div>
 </template>
 
@@ -50,7 +44,7 @@ export default class TodoItem extends Vue {
 
 	mounted() {
 		this.onCompletedUpdate();
-		this.resetInputOnBlur(this.todoItemData.itemName);
+		//this.resetInputOnBlur(this.todoItemData.itemName);
 	}
 
 	private onCompletedUpdate() {
@@ -59,26 +53,30 @@ export default class TodoItem extends Vue {
 		) as HTMLInputElement;
 
 		checkbox.onchange = () => {
-			this.editTodoItem();
+			this.changeTodoStatus();
 		};
 	}
-	private resetInputOnBlur(currentName: string) {
-		const input = document.getElementById(
-			`todoItemNameInput_${this.todoItemData.id}`
-		) as HTMLInputElement;
+	// private resetInputOnBlur(currentName: string) {
+	// 	const input = document.getElementById(
+	// 		`todoItemNameInput_${this.todoItemData.id}`
+	// 	) as HTMLInputElement;
 
-		input.onblur = () => {
-			input.value = currentName;
-		};
+	// 	input.onblur = () => {
+	// 		input.value = currentName;
+	// 	};
+	// }
+
+	private OpenEditTodoItemModal() {
+		this.$emit('edit-todo-event', this.todoItemData);
 	}
 
 	public deleteItemSignal(e: Event) {
 		var btn = e.target as HTMLButtonElement;
 		this.$emit('delete-item-event', this.todoItemData, btn);
 	}
-	public editTodoItem() {
-		this.resetInputOnBlur(this.todoItemData.itemName);
-		this.$emit('edit-item-event', this.todoItemData);
+	public changeTodoStatus() {
+		// this.resetInputOnBlur(this.todoItemData.itemName);
+		this.$emit('change-todo-status-event', this.todoItemData);
 	}
 }
 </script>
@@ -94,12 +92,15 @@ export default class TodoItem extends Vue {
 }
 
 .todo-item-name {
-	flex: 1;
-	margin-left: 2em;
-	margin-right: 2em;
-	min-width: 0;
+	width: 100%;
+	margin-left: 1.5em;
+	text-align: left;
+	cursor: pointer;
 }
 
+.todo-item-name h3:hover {
+	text-decoration: underline;
+}
 .todo-item-name-input {
 	outline: none;
 	display: block;

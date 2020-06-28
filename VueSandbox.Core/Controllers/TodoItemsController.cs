@@ -44,14 +44,22 @@ namespace VueSandbox.Core.Controllers
 
         // PUT: api/TodoItems/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutTodoItem(long id, TodoItem todoItem)
+        public async Task<IActionResult> PutTodoItem(long id, PutTodoItemViewModel model)
         {
-            if (id != todoItem.Id)
+            if (id != model.Id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(todoItem).State = EntityState.Modified;
+            var todo = await _context.TodoItems.FindAsync(id);
+            if(todo == null)
+            {
+                return NotFound();
+            }
+
+            todo.Name = model.Name;
+            todo.Desc = model.Desc;
+            todo.IsComplete = model.IsComplete;
 
             try
             {
@@ -74,7 +82,7 @@ namespace VueSandbox.Core.Controllers
 
         // POST: api/TodoItems
         [HttpPost]
-        public async Task<ActionResult<TodoItemViewModel>> PostTodoItem(TodoItemViewModel model)
+        public async Task<ActionResult<PostTodoItemViewModel>> PostTodoItem(PostTodoItemViewModel model)
         {
             var todoItem = new TodoItem { 
                 Name = model.Name,
