@@ -440,7 +440,7 @@ export default class TodoList extends Vue {
 				);
 			})
 			.catch((error) => {
-				console.log(error.response.data);
+				console.log(error);
 				//location.reload(); // Don't think this is the best idea
 				item.resetDefault(); // hmm
 			})

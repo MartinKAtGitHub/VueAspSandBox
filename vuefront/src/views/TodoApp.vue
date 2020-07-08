@@ -1,7 +1,5 @@
 <template>
 	<div class="todo-app">
-		<!-- add new list modal -->
-
 		<div id="addTodoListModal" class="todo-app-modal">
 			<div class="todo-app-modal-content">
 				<div class="todo-app-modal-content-header">
